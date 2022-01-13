@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Outfit Details</h1>
+
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ outfit.name }}</span>
+        <p>Number of articles of clothing: {{ outfit.number_items}}</p>
+        <p>Season: {{ outfit.season }}</p>
+        <p>Color Theme: {{ outfit.color_theme }}</p>
+        <p>Formality: {{ outfit.dress_code }}</p>
+        <p>Description: {{ outfit.description }}</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'outfits_update' outfit.id %}">Edit</a>
+        <a href="{% url 'outfits_delete' outfit.id %}">Delete</a>
+      </div>
+    </div>
+  </div>
+  <div class="col s6">
+    <form action="{% url 'add_accessories' outfit.id %}" method="POST">
+      {% csrf_token %}
+      {{ accessories_form.as_p }}
+      <input type="submit" class="btn" value="Add Accessories">
+    </form>
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Accessory Type</th>
+          <th>Date Added</th>
+          <th>Dress Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for accessories in outfit.accessories_set.all %}
+        <tr>
+          <td>{{ accessories.name }}</td>
+          <td>{{ accessories.type }}</td>
+          <td>{{ accessories.date }}</td>
+          <td>{{ accessories.dress_code }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+<div class="row">
+  <div class="col s6">
+    <h3>{{ outfit.name }}'s Shoes</h3>
+    {% if outfit.shoes.count %}
+    {% for shoe in outfit.shoes.all %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">
+          A <span style="color: {{ shoe.color }}">{{shoe.color}}</span>{{shoe.brand}}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h5> No Shoes 🥲 </h5>
+    {% endif %}
+  </div>
+  <div class="col s6">
+    <h3> Available Shoes </h3>
+    {% if shoes.count %}
+    {% for shoe in shoes.all %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">
+          <span style="color: {{shoe.color}}">{{shoe.color}}</span> {{shoe.brand}}
+        </span>
+      </div>
+      <div class="card-action">
+        <form action=" {% url 'assoc_shoe' outfit.id shoe.id %}" method="POST">
+          {% csrf_token %}
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h5>{{shoe.brand}} Already Has All Shoes Available!</h5>
+    {% endif %}
+  </div>
+</div>
+
+
+
+<script>
+  // Date picker
+  const dateEl = document.getElementById('id_date');
+  M.Datepicker.init(dateEl, {
+    format: 'yyyy-mm-dd',
+    defaultDate: new Date(),
+    setDefaultDate: true,
+    autoClose: true
+  });
+
+  // add additional JS to initialize select below
+  const selectEl = document.getElementById('id_type');
+  M.FormSelect.init(selectEl);
+</script>
+
+{% endblock %}
